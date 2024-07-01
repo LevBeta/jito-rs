@@ -121,7 +121,6 @@ where
     )
     .await
     {
-        let instant = Instant::now();
         info!("bundle results: {:?}", results);
         match results.result {
             Some(BundleResultType::Accepted(Accepted {
@@ -164,7 +163,6 @@ where
             }
             _ => {}
         }
-        time_left -= instant.elapsed().as_millis() as u64;
     }
 
     // Add a return statement here to handle the case where there is no return before the timeout
