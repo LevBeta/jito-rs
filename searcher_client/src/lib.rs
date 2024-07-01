@@ -115,9 +115,8 @@ where
     let uuid = result.into_inner().uuid;
     info!("Bundle sent. UUID: {:?}", uuid);
 
-    let mut time_left = 10000;
     while let Ok(Some(Ok(results))) = timeout(
-        Duration::from_millis(time_left),
+        Duration::from_secs(20),
         bundle_results_subscription.next(),
     )
     .await
@@ -168,30 +167,10 @@ where
         time_left -= instant.elapsed().as_millis() as u64;
     }
 
-    let futs: Vec<_> = bundle_signatures
-        .iter()
-        .map(|sig| {
-            rpc_client.get_signature_status_with_commitment(sig, CommitmentConfig::processed())
-        })
-        .collect();
-
-    let results = futures_util::future::join_all(futs).await;
-
-    results.iter().for_each(|r| {
-        info!("Signature status: {:?}", r);
-    });
-
-    if let Some(error) = results.iter().find_map(|r| r.as_ref().err()) {
-        return Err(Box::new(BundleRejectionError::InternalError(
-            error.to_string(),
-        )));
-    }
-
-    info!("Bundle landed successfully");
-    for sig in bundle_signatures.iter() {
-        info!("https://solscan.io/tx/{}", sig);
-    }
-    Ok(())
+    // Add a return statement here to handle the case where there is no return before the timeout
+    return Err(Box::new(BundleRejectionError::InternalError(
+        "No return before timeout".to_string(),
+    )));
 }
 
 pub async fn send_bundle_no_wait<T>(
