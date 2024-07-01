@@ -177,6 +177,10 @@ where
 
     let results = futures_util::future::join_all(futs).await;
 
+    results.iter().for_each(|r| {
+        info!("Signature status: {:?}", r);
+    });
+
     if let Some(error) = results.iter().find_map(|r| r.as_ref().err()) {
         return Err(Box::new(BundleRejectionError::InternalError(
             error.to_string(),
